@@ -1,0 +1,17 @@
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+.DS_Store
+._*
+
+benchmark_results/
+*.log
+*.wav
+*.usd
+*.before_*
