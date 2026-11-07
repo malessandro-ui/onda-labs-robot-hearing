@@ -1,25 +1,27 @@
-"""Isaac Lab ObservationManager-compatible observation term.
+"""Isaac Lab observation terms for Onda hearing, with lazy torch dependencies.
 
-Integration contract: an application attaches `onda_hearing_bank` to its
-manager-based environment, ingests new acoustic events after physics updates,
-and exposes integer `onda_time_ns` (scalar or per-environment array).
-The term only reads policy features. It does not run audio generation inside
-ObservationManager and does not import Isaac Lab at SDK import time.
+The original `HearingObservationBank` term remains supported for existing
+v0.15 applications. New applications should use `IsaacLabHearingManager`, whose
+spatial observations come from the proven WindowedHearingPipeline.
 """
 from __future__ import annotations
 
 from onda_hearing.policy import HearingObservationBank
+from .isaac_lab_runtime import (
+    IsaacLabAcousticConfig, IsaacLabHearingManager,
+    onda_acoustic_policy_observation, onda_reset_hearing,
+)
 
 
-def acoustic_policy_observation(env, *, bank_attribute: str = "onda_hearing_bank",
-                                time_attribute: str = "onda_time_ns"):
+def acoustic_policy_observation(env, *, bank_attribute: str = 'onda_hearing_bank',
+                                time_attribute: str = 'onda_time_ns'):
+    """Legacy 5-element ObservationManager term for event-based banks."""
     bank = getattr(env, bank_attribute)
     if not isinstance(bank, HearingObservationBank):
-        raise TypeError(f"{bank_attribute} must be a HearingObservationBank")
+        raise TypeError(f'{bank_attribute} must be a HearingObservationBank')
     if int(env.num_envs) != bank.num_envs:
-        raise ValueError("environment/bank batch sizes differ")
+        raise ValueError('environment/bank batch sizes differ')
     now_ns = getattr(env, time_attribute)
-    if hasattr(now_ns, "detach"):
+    if hasattr(now_ns, 'detach'):
         now_ns = now_ns.detach().cpu().numpy()
-    device = getattr(env, "device", None)
-    return bank.torch(now_ns, device=device)
+    return bank.torch(now_ns, device=getattr(env, 'device', None))
