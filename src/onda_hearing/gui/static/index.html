@@ -3,190 +3,117 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Onda Acoustic Intelligence Observatory</title>
+  <title>Onda Acoustic Scene</title>
   <link rel="stylesheet" href="/app.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
-      <div><strong>Onda</strong><small>Acoustic Intelligence Observatory</small></div>
-    </div>
-    <div class="run-state"><span class="status-dot"></span><span id="runtime-label">Connecting to SDK…</span></div>
-    <div class="toolbar">
-      <button class="button secondary" id="reset-button" type="button">Reset</button>
-      <button class="button secondary" id="export-button" type="button" disabled>Export report</button>
-      <button class="button primary" id="run-button" type="button">Run scenario</button>
-    </div>
+    <a class="brand" href="#" aria-label="Onda acoustic scene home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      <span><strong>Onda</strong><small>Acoustic scene</small></span>
+    </a>
+    <div class="runtime"><span class="status-dot"></span><span id="runtime-label">Connecting…</span></div>
   </header>
 
-  <main class="workspace">
-    <aside class="sidebar">
-      <div class="panel-heading">
-        <div><p class="eyebrow">Acoustic world setup</p><h1>Robot environment</h1></div>
-        <span class="badge">v0.17</span>
-      </div>
+  <main class="scene" aria-label="Robot acoustic simulation">
+    <div class="scene-copy">
+      <p>ACOUSTIC SCENE 01</p>
+      <h1>Hear beyond the camera.</h1>
+      <span>Place a source, render the microphone signal, and inspect what the robot hears.</span>
+    </div>
 
-      <label class="field">Microphone array
-        <select id="mic-preset">
-          <option value="onda_reference_4">Onda reference · 4 mic</option>
-          <option value="square_4">Square · 4 mic</option>
-          <option value="linear_4">Linear · 4 mic</option>
-        </select>
-      </label>
-      <label class="field">Acoustic environment
-        <select id="room-preset">
-          <option value="direct">Direct path</option>
-          <option value="small_lab">Small lab FIR</option>
-          <option value="office">Office FIR</option>
-        </select>
-      </label>
-      <label class="field">Processing
-        <select id="processing">
-          <option value="raw">Raw acoustic scene</option>
-          <option value="waveformer" disabled>Waveformer · adapter required</option>
-        </select>
-      </label>
-      <div class="field range-field">
-        <div><label for="duration">Duration</label><output id="duration-value">2.4 s</output></div>
-        <input id="duration" type="range" min="0.5" max="10" step="0.1" value="2.4">
-      </div>
-      <div class="field range-field">
-        <div><label for="noise">Sensor noise</label><output id="noise-value">0.002</output></div>
-        <input id="noise" type="range" min="0" max="0.02" step="0.001" value="0.002">
-      </div>
+    <svg id="scene-svg" viewBox="0 0 1200 720" role="img" aria-labelledby="scene-title scene-description">
+      <title id="scene-title">Top-down acoustic scene</title>
+      <desc id="scene-description">A microphone array listening to configured sound sources.</desc>
+      <defs>
+        <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+          <path d="M48 0H0V48" fill="none" class="grid-line"></path>
+        </pattern>
+        <radialGradient id="room-light" cx="50%" cy="45%" r="70%">
+          <stop offset="0" stop-color="#17232d"></stop><stop offset="1" stop-color="#0b1015"></stop>
+        </radialGradient>
+        <marker id="arrow-estimate" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><path d="M0 0L8 3.5L0 7Z" class="estimate-fill"></path></marker>
+      </defs>
+      <rect class="room" x="24" y="24" width="1152" height="672" rx="16"></rect>
+      <rect x="24" y="24" width="1152" height="672" rx="16" fill="url(#grid)"></rect>
+      <path class="furniture" d="M88 96h260v130H88zM852 88h258v92H852zM908 508h190v120H908z"></path>
+      <g id="estimate-layer"></g>
+      <g id="emitters-layer"></g>
+      <g class="robot" transform="translate(600 390)">
+        <path class="fov" d="M0 0L-190-270A330 330 0 0 1 190-270Z"></path>
+        <circle class="robot-ring" r="76"></circle>
+        <circle class="robot-body" r="48"></circle>
+        <path class="robot-heading" d="M0-58L-10-37H10Z"></path>
+        <g id="microphones-layer"></g>
+        <text class="scene-label" x="0" y="94" text-anchor="middle">MIC ARRAY</text>
+      </g>
+    </svg>
 
-      <div class="section-heading">
-        <div><p class="eyebrow">Emitters</p><span id="emitter-count">1 active</span></div>
-        <button class="icon-button" id="add-emitter" type="button" aria-label="Add emitter">+</button>
-      </div>
-      <div id="emitter-list" class="emitter-list"></div>
-    </aside>
+    <div class="scene-meta"><span id="scene-status">Ready to render</span><span>Simulation reference view</span></div>
 
-    <section class="stage-column">
-      <div class="stage-heading">
-        <div><p class="eyebrow">Where the robot is listening</p><h2>Robot acoustic world</h2></div>
-        <div class="legend"><span><i class="line estimate"></i>PCM estimate</span><span><i class="line truth"></i>Evaluation truth</span></div>
-      </div>
-      <div class="perception-chain" aria-label="Robot hearing pipeline status">
-        <div class="chain-node active"><span>01</span><strong>Microphone PCM</strong><small id="chain-pcm">Ready</small></div>
-        <i aria-hidden="true">→</i>
-        <div class="chain-node"><span>02</span><strong>Spatial hearing</strong><small id="chain-spatial">Waiting</small></div>
-        <i aria-hidden="true">→</i>
-        <div class="chain-node"><span>03</span><strong>Sound meaning</strong><small id="chain-semantic">Checking BEATs</small></div>
-        <i aria-hidden="true">→</i>
-        <div class="chain-node caution"><span>04</span><strong>Association</strong><small id="chain-association">Not claimed</small></div>
-      </div>
-      <div class="stage" id="stage">
-        <svg id="scene-svg" viewBox="0 0 720 430" role="img" aria-labelledby="scene-title scene-description">
-          <title id="scene-title">Acoustic scene</title>
-          <desc id="scene-description">A top-down view of a microphone array and configured sound emitters.</desc>
-          <defs>
-            <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
-              <path d="M36 0H0V36" fill="none" class="grid-line"></path>
-            </pattern>
-            <marker id="arrow-estimate" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><path d="M0 0L8 3.5L0 7Z" class="estimate-fill"></path></marker>
-            <marker id="arrow-truth" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto"><path d="M0 0L8 3.5L0 7Z" class="truth-fill"></path></marker>
-          </defs>
-          <rect class="room" x="16" y="16" width="688" height="398" rx="10"></rect>
-          <rect x="16" y="16" width="688" height="398" rx="10" fill="url(#grid)"></rect>
-          <g id="truth-layer"></g>
-          <g id="estimate-layer"></g>
-          <g id="emitters-layer"></g>
-          <g class="robot" transform="translate(360 232)">
-            <circle class="robot-ring" r="57"></circle>
-            <circle class="robot-body" r="39"></circle>
-            <path class="robot-heading" d="M0 -46L-9 -28H9Z"></path>
-            <g id="microphones-layer"></g>
-            <text class="scene-label" x="0" y="73" text-anchor="middle">Robot array</text>
-          </g>
-        </svg>
-        <div class="stage-chip" id="stage-chip">Ready to render</div>
-        <div class="scale"><span></span>1 m</div>
-      </div>
-      <div class="timeline">
-        <div class="timeline-meta"><span>Acoustic event stream</span><span id="timeline-duration">2.4 seconds</span></div>
-        <div class="timeline-track" id="timeline-track"><div class="timeline-playhead" id="timeline-playhead"></div></div>
-      </div>
+    <section class="instrument" id="instrument" aria-label="Onda hearing instrument">
+      <button class="instrument-summary" id="instrument-toggle" type="button" aria-expanded="false" aria-controls="instrument-details">
+        <span class="instrument-kicker"><i class="listening-dot"></i><span id="instrument-state">Ready</span></span>
+        <span class="mini-compass" aria-hidden="true"><i id="compass-needle"></i><b>N</b></span>
+        <span class="summary-value"><strong id="bearing-result">—</strong><small id="confidence-result">Run a scene</small></span>
+        <span class="expand-icon" aria-hidden="true">+</span>
+      </button>
 
-      <section class="signal-section">
-        <div class="signal-heading">
-          <div><p class="eyebrow">What the robot hears</p><h2>Multichannel microphone stream</h2></div>
+      <div class="instrument-details" id="instrument-details" hidden>
+        <div class="readout-grid">
+          <div><span>Direction</span><strong id="direction-result">No estimate</strong></div>
+          <div><span>Confidence</span><strong id="confidence-detail">—</strong></div>
+          <div class="meaning"><span>Sound meaning</span><strong id="semantic-result">BEATs not configured</strong></div>
+        </div>
+
+        <div class="waveform-wrap">
+          <canvas id="waveform" width="640" height="120" aria-label="Microphone waveform"></canvas>
           <audio id="audio-player" controls preload="none"></audio>
         </div>
-        <canvas id="waveform" width="1100" height="220" aria-label="Rendered microphone waveforms"></canvas>
-        <div class="channel-legend" id="channel-legend"></div>
-      </section>
+
+        <details class="settings">
+          <summary>Scene setup <span>Adjust</span></summary>
+          <div class="settings-body">
+            <label>Microphone array
+              <select id="mic-preset"><option value="onda_reference_4">Onda reference · 4 mic</option><option value="square_4">Square · 4 mic</option><option value="linear_4">Linear · 4 mic</option></select>
+            </label>
+            <label>Environment
+              <select id="room-preset"><option value="direct">Direct path</option><option value="small_lab">Small lab FIR</option><option value="office">Office FIR</option></select>
+            </label>
+            <label>Processing
+              <select id="processing"><option value="raw">Raw acoustic scene</option><option value="waveformer" disabled>Waveformer · adapter required</option></select>
+            </label>
+            <label>Duration <output id="duration-value">2.4 s</output>
+              <input id="duration" type="range" min="0.5" max="10" step="0.1" value="2.4">
+            </label>
+            <label>Sensor noise <output id="noise-value">0.002</output>
+              <input id="noise" type="range" min="0" max="0.02" step="0.001" value="0.002">
+            </label>
+            <div class="source-heading"><span>Sound sources</span><button id="add-emitter" type="button">+ Add</button></div>
+            <div id="emitter-list" class="emitter-list"></div>
+          </div>
+        </details>
+
+        <div class="actions">
+          <button id="reset-button" type="button">Reset</button>
+          <button id="export-button" type="button" disabled>Export</button>
+          <button class="run-button" id="run-button" type="button">Run scene</button>
+        </div>
+        <p class="integrity" id="integrity">Direction is audio-derived. Labels describe the whole window and are not associated with a direction.</p>
+        <div class="error-box" id="error-box" role="alert" hidden></div>
+      </div>
     </section>
-
-    <aside class="inspector">
-      <div class="panel-heading">
-        <div><p class="eyebrow">Where the sound comes from</p><h2>Spatial understanding</h2></div>
-        <span class="badge muted" id="valid-badge">Not run</span>
-      </div>
-      <div class="metric hero-metric"><span>Estimated bearing</span><strong id="bearing-result">—</strong></div>
-      <div class="metric-grid">
-        <div class="metric"><span>Angular error</span><strong id="error-result">—</strong></div>
-        <div class="metric"><span>Confidence</span><strong id="confidence-result">—</strong></div>
-        <div class="metric"><span>Render time</span><strong id="render-result">—</strong></div>
-        <div class="metric"><span>Peak level</span><strong id="peak-result">—</strong></div>
-      </div>
-
-      <section class="inspector-section semantic-section">
-        <div class="section-title"><span>What produced the sound</span><span class="badge muted" id="semantic-badge">Checking</span></div>
-        <div class="semantic-brain"><span>Inference backend</span><strong id="semantic-brain">Onda Sound Brain · BEATs</strong></div>
-        <div class="semantic-events" id="semantic-events">
-          <div class="semantic-empty">Run a scene to inspect whole-window sound meaning.</div>
-        </div>
-        <p class="semantic-scope" id="semantic-scope">Semantic labels describe the whole audio window and are not yet associated with a direction.</p>
-      </section>
-
-      <section class="inspector-section">
-        <div class="section-title"><span>What the robot understands</span><span class="code-label">policy float32[5]</span></div>
-        <div id="policy-values" class="policy-values">
-          <div><span>bearing_sin</span><code>0.000</code></div>
-          <div><span>bearing_cos</span><code>0.000</code></div>
-          <div><span>evidence_scaled</span><code>0.000</code></div>
-          <div><span>valid</span><code>0</code></div>
-          <div><span>age_s</span><code>0.000</code></div>
-        </div>
-      </section>
-
-      <section class="inspector-section">
-        <div class="section-title"><span>Renderer telemetry</span></div>
-        <div class="telemetry" id="telemetry">
-          <div><span>Samples / channel</span><strong>—</strong></div>
-          <div><span>Overrange samples</span><strong>—</strong></div>
-          <div><span>Clipped samples</span><strong>—</strong></div>
-          <div><span>Association</span><strong>—</strong></div>
-        </div>
-      </section>
-
-      <div class="notice" id="notice">
-        <strong>Reference simulation</strong>
-        <p>Run a scene to inspect audio-derived localization. Ground truth stays in evaluation fields only.</p>
-      </div>
-      <div class="error-box" id="error-box" role="alert" hidden></div>
-    </aside>
   </main>
 
   <template id="emitter-template">
     <article class="emitter-card">
-      <header>
-        <label class="toggle"><input class="emitter-enabled" type="checkbox" checked><span></span></label>
-        <input class="emitter-name" value="speaker" aria-label="Emitter name" maxlength="40">
-        <button class="remove-emitter" type="button" aria-label="Remove emitter">×</button>
-      </header>
-      <div class="two-column">
+      <header><input class="emitter-name" value="speaker" aria-label="Source name" maxlength="40"><button class="remove-emitter" type="button" aria-label="Remove source">×</button></header>
+      <div class="source-fields">
         <label>Sound<select class="emitter-sound"><option value="broadband">Broadband</option><option value="speech_like">Speech-like</option><option value="telephone">Telephone</option><option value="alarm">Alarm</option></select></label>
-        <label>Directivity<select class="emitter-directivity"><option value="omni">Omni</option><option value="cardioid">Cardioid</option></select></label>
-      </div>
-      <div class="compact-ranges">
         <label>Bearing <output class="emitter-bearing-value">38°</output><input class="emitter-bearing" type="range" min="-180" max="180" step="1" value="38"></label>
         <label>Distance <output class="emitter-distance-value">2.0 m</output><input class="emitter-distance" type="range" min="0.2" max="8" step="0.1" value="2"></label>
-        <label>Gain <output class="emitter-gain-value">−3 dB</output><input class="emitter-gain" type="range" min="-30" max="12" step="1" value="-3"></label>
-        <label>Onset <output class="emitter-onset-value">0.1 s</output><input class="emitter-onset" type="range" min="0" max="2.4" step="0.1" value="0.1"></label>
       </div>
+      <input class="emitter-gain" type="hidden" value="-3"><input class="emitter-onset" type="hidden" value="0.1"><input class="emitter-directivity" type="hidden" value="omni"><input class="emitter-enabled" type="checkbox" checked hidden>
     </article>
   </template>
   <script src="/app.js"></script>

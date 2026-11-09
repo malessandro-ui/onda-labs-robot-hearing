@@ -1,8 +1,12 @@
-# Onda Hearing Workbench
+# Onda Hearing Instrument
 
-The workbench is a robot acoustic intelligence observatory over the real v0.17
-acoustic-scene renderer. It does not use a second scene schema or fabricate
-perception results. Its information hierarchy answers four questions:
+The GUI is a compact acoustic-intelligence instrument over the real v0.17
+acoustic-scene renderer. The scene stays visually primary; a small lower-right
+popup shows the robot's current bearing and confidence. Click it to reveal the
+waveform, audio playback, sound meaning, scene setup and export controls.
+
+It does not use a second scene schema or fabricate perception results. The
+instrument answers four questions:
 
 1. What does the robot hear?
 2. Where does the sound come from?
@@ -31,13 +35,14 @@ The convenience script performs the editable install and starts the same CLI:
 
 ## Implemented workflow
 
-1. Select a microphone geometry and reference acoustic environment.
-2. Add, remove and configure up to eight emitters.
-3. Configure sound, bearing, distance, gain, onset and directivity.
-4. Run deterministic PCM rendering through `AcousticSceneRenderer`.
-5. Inspect PCM-derived GCC-PHAT/SRP localization and policy features.
-6. Listen to the rendered mono monitor mix and inspect all microphone channels.
-7. Export a JSON report without embedding the audio payload.
+1. Click the lower-right hearing instrument to open it.
+2. Optionally expand **Scene setup** to choose the microphone geometry,
+   environment, duration, noise and up to eight sound sources.
+3. Run deterministic PCM rendering through `AcousticSceneRenderer`.
+4. Read PCM-derived GCC-PHAT/SRP bearing and confidence on the compact compass.
+5. Listen to the rendered monitor mix, inspect its waveform and see the optional
+   whole-window BEATs classification.
+6. Export a JSON report without embedding the audio payload.
 
 The GUI uses simulator truth only to draw the evaluation overlay and calculate
 single-source angular error. Localization and policy observations receive PCM.
@@ -57,7 +62,7 @@ export ONDA_GUI_ALLOW_TRUSTED_BEATS=1
 onda-hearing-gui
 ```
 
-When these requirements are absent, the semantic panel says **Not configured**.
+When these requirements are absent, the instrument says **BEATs not configured**.
 When available, classifications describe the complete audio window. The GUI
 does not attach a label to a direction because v0.17 does not implement a
 validated semantic-spatial association layer.
