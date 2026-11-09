@@ -15,9 +15,13 @@ mujoco = ["mujoco>=3.2"]
 
 [project.scripts]
 onda-hearing = "onda_hearing.cli:main"
+onda-hearing-gui = "onda_hearing.gui.app:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"onda_hearing.gui" = ["static/*.html", "static/*.css", "static/*.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
