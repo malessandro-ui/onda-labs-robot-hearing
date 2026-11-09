@@ -1,0 +1,203 @@
+{
+  "suite": "Onda v0.15 native Isaac Lab rotating microphone rig acceptance",
+  "started_utc": "2026-11-09T03:15:49.861370+00:00",
+  "result": "PASS",
+  "test_revision": "2-world-and-local-frames",
+  "environment": {
+    "task": "Isaac-Cartpole-v0",
+    "num_envs": 2,
+    "device": "cuda:0",
+    "step_dt_s": 0.016666666666666666,
+    "torch": "2.7.0+cu128",
+    "cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "fixed_emitters_world_xyz": [
+      [
+        3.182016134262085,
+        0.9234922528266907,
+        2.0
+      ],
+      [
+        -0.817983865737915,
+        -0.9234922528266907,
+        2.0
+      ]
+    ],
+    "mic_rig_world_xyz": [
+      [
+        2.0,
+        0.0,
+        2.0
+      ],
+      [
+        -2.0,
+        0.0,
+        2.0
+      ]
+    ],
+    "target_world_angles_deg": [
+      38.0,
+      -38.0
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": 0,
+      "target_yaw_deg": 0.0,
+      "hold_steps": 90,
+      "ramp_steps": 0,
+      "environments": [
+        {
+          "env_id": 0,
+          "valid_tail_samples": 35,
+          "expected_local_bearing_last_deg": 38.00000110853594,
+          "inferred_local_bearing_last_deg": 35.99999933864984,
+          "expected_world_bearing_last_deg": 38.00000110853594,
+          "inferred_world_bearing_last_deg": 35.99999933864984,
+          "median_error_deg": 2.0000017698860972,
+          "p75_error_deg": 2.0000017698860972,
+          "world_p75_error_deg": 2.0000017698860972,
+          "fresh_acoustic_decisions_in_tail": 6,
+          "mean_evidence": 0.4931456344468253
+        },
+        {
+          "env_id": 1,
+          "valid_tail_samples": 35,
+          "expected_local_bearing_last_deg": -38.00000110853594,
+          "inferred_local_bearing_last_deg": -40.00000131811316,
+          "expected_world_bearing_last_deg": -38.00000110853594,
+          "inferred_world_bearing_last_deg": -40.00000131811316,
+          "median_error_deg": 2.000000209577223,
+          "p75_error_deg": 2.000000209577223,
+          "world_p75_error_deg": 2.000000209577223,
+          "fresh_acoustic_decisions_in_tail": 6,
+          "mean_evidence": 0.4910287848540715
+        }
+      ],
+      "max_rig_orientation_error_deg": 0.0
+    },
+    {
+      "phase_id": 1,
+      "target_yaw_deg": 30.0,
+      "hold_steps": 90,
+      "ramp_steps": 25,
+      "environments": [
+        {
+          "env_id": 0,
+          "valid_tail_samples": 35,
+          "expected_local_bearing_last_deg": 8.000001641056883,
+          "inferred_local_bearing_last_deg": 10.000001850634135,
+          "expected_world_bearing_last_deg": 38.00000110853594,
+          "inferred_world_bearing_last_deg": 40.00000131811316,
+          "median_error_deg": 2.0000002095772516,
+          "p75_error_deg": 2.0000002095772516,
+          "world_p75_error_deg": 2.000000209577223,
+          "fresh_acoustic_decisions_in_tail": 6,
+          "mean_evidence": 0.508484297139304
+        },
+        {
+          "env_id": 1,
+          "valid_tail_samples": 35,
+          "expected_local_bearing_last_deg": -68.00000057601497,
+          "inferred_local_bearing_last_deg": -65.99999880612889,
+          "expected_world_bearing_last_deg": -38.00000110853594,
+          "inferred_world_bearing_last_deg": -35.99999933864984,
+          "median_error_deg": 2.000001769886069,
+          "p75_error_deg": 2.000001769886069,
+          "world_p75_error_deg": 2.0000017698860972,
+          "fresh_acoustic_decisions_in_tail": 6,
+          "mean_evidence": 0.5367991413388934
+        }
+      ],
+      "max_rig_orientation_error_deg": 0.01881883968796682
+    },
+    {
+      "phase_id": 2,
+      "target_yaw_deg": -30.0,
+      "hold_steps": 90,
+      "ramp_steps": 25,
+      "environments": [
+        {
+          "env_id": 0,
+          "valid_tail_samples": 35,
+          "expected_local_bearing_last_deg": 68.00000057601497,
+          "inferred_local_bearing_last_deg": 70.00000078559219,
+          "expected_world_bearing_last_deg": 38.00000110853594,
+          "inferred_world_bearing_last_deg": 40.00000131811316,
+          "median_error_deg": 2.000000209577223,
+          "p75_error_deg": 2.000000209577223,
+          "world_p75_error_deg": 2.000000209577223,
+          "fresh_acoustic_decisions_in_tail": 6,
+          "mean_evidence": 0.5047604765210832
+        },
+        {
+          "env_id": 1,
+          "valid_tail_samples": 35,
+          "expected_local_bearing_last_deg": -8.000001641056883,
+          "inferred_local_bearing_last_deg": -5.999999871170786,
+          "expected_world_bearing_last_deg": -38.00000110853594,
+          "inferred_world_bearing_last_deg": -35.99999933864984,
+          "median_error_deg": 2.0000017698860972,
+          "p75_error_deg": 2.0000017698860972,
+          "world_p75_error_deg": 2.0000017698860972,
+          "fresh_acoustic_decisions_in_tail": 6,
+          "mean_evidence": 0.5060796175684248
+        }
+      ],
+      "max_rig_orientation_error_deg": 0.01881883968796682
+    },
+    {
+      "phase_id": 3,
+      "target_yaw_deg": 0.0,
+      "hold_steps": 90,
+      "ramp_steps": 25,
+      "environments": [
+        {
+          "env_id": 0,
+          "valid_tail_samples": 35,
+          "expected_local_bearing_last_deg": 38.00000110853594,
+          "inferred_local_bearing_last_deg": 35.99999933864984,
+          "expected_world_bearing_last_deg": 38.00000110853594,
+          "inferred_world_bearing_last_deg": 35.99999933864984,
+          "median_error_deg": 2.0000017698860972,
+          "p75_error_deg": 2.0000017698860972,
+          "world_p75_error_deg": 2.0000017698860972,
+          "fresh_acoustic_decisions_in_tail": 6,
+          "mean_evidence": 0.492866895880018
+        },
+        {
+          "env_id": 1,
+          "valid_tail_samples": 35,
+          "expected_local_bearing_last_deg": -38.00000110853594,
+          "inferred_local_bearing_last_deg": -40.00000131811316,
+          "expected_world_bearing_last_deg": -38.00000110853594,
+          "inferred_world_bearing_last_deg": -40.00000131811316,
+          "median_error_deg": 2.000000209577223,
+          "p75_error_deg": 2.000000209577223,
+          "world_p75_error_deg": 2.000000209577223,
+          "fresh_acoustic_decisions_in_tail": 6,
+          "mean_evidence": 0.48978576149259295
+        }
+      ],
+      "max_rig_orientation_error_deg": 0.0
+    }
+  ],
+  "timing": {
+    "policy_step_including_physx_onda_python_ms_p50": 164.4820775,
+    "policy_step_including_physx_onda_python_ms_p95": 205.34210355,
+    "onda_manager_advance_including_cpu_staging_ms_p50": 154.822974,
+    "onda_manager_advance_including_cpu_staging_ms_p95": 197.26892999999998,
+    "number_of_timed_policy_steps": 360,
+    "number_of_timed_onda_advances": 435,
+    "notes": "Manager.advance includes PCM generation, SRP, and GPU-to-CPU staging; it does not include scene reading, policy tensor conversion, or Kit startup. No GPU synchronization is imposed; these are wall-clock CPU-side call durations."
+  },
+  "limitations": [
+    "Virtual four-microphone rig; geometry not calibrated against physical robot.",
+    "The rigid rig follows commanded kinematic poses, not a driven robot joint.",
+    "Onda CPU acoustic renderer and SRP; GPU-parallel throughput not demonstrated.",
+    "A test-runner hard exit bypasses the known Kit close() hang when requested.",
+    "Phase changes use gradual yaw ramps followed by stable evaluation windows."
+  ],
+  "completed_utc": "2026-11-09T03:17:07.847522+00:00",
+  "shutdown_mode": "hard"
+}
