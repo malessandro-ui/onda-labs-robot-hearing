@@ -8,7 +8,8 @@ import json
 from pathlib import Path
 import webbrowser
 
-from .backend import GuiInputError, capabilities, simulate_scenario
+from .backend import GuiInputError, build_scene, capabilities, simulate_scenario
+from .live import live_frames
 
 
 STATIC_DIR = Path(__file__).with_name("static")
@@ -17,7 +18,7 @@ STATIC_FILES = {
     "/app.css": ("app.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
 }
-MAX_REQUEST_BYTES = 1_000_000
+MAX_REQUEST_BYTES = 4_000_000
 
 
 class WorkbenchHandler(BaseHTTPRequestHandler):
@@ -54,7 +55,7 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_POST(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
-        if self.path != "/api/simulate":
+        if self.path not in ("/api/simulate", "/api/live"):
             self.send_error(HTTPStatus.NOT_FOUND)
             return
         try:
@@ -62,11 +63,35 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
             if not 0 < length <= MAX_REQUEST_BYTES:
                 raise GuiInputError("request body is empty or too large")
             payload = json.loads(self.rfile.read(length))
-            self._json(HTTPStatus.OK, simulate_scenario(payload))
+            if self.path == "/api/live":
+                _, renderer, positions = build_scene(payload)
+            else:
+                self._json(HTTPStatus.OK, simulate_scenario(payload))
         except (GuiInputError, json.JSONDecodeError) as exc:
             self._json(HTTPStatus.BAD_REQUEST, {"error": str(exc)})
         except Exception as exc:  # fail visibly without exposing a traceback in the browser
             self._json(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": f"simulation failed: {type(exc).__name__}: {exc}"})
+        else:
+            if self.path == "/api/live":
+                self._live(renderer, positions)
+
+    def _live(self, renderer, positions) -> None:
+        self.close_connection = True
+        self.connection.settimeout(2.)
+        frames = live_frames(renderer, positions)
+        try:
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "application/x-ndjson")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("X-Content-Type-Options", "nosniff")
+            self.end_headers()
+            for frame in frames:
+                self.wfile.write(json.dumps(frame, allow_nan=False).encode("utf-8") + b"\n")
+                self.wfile.flush()
+        except OSError:
+            pass  # The browser stopped listening or was too slow to read.
+        finally:
+            frames.close()
 
     def log_message(self, format: str, *args) -> None:
         print(f"[onda-gui] {self.address_string()} - {format % args}")

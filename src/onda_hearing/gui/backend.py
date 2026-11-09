@@ -1,17 +1,15 @@
-"""Validated GUI adapter over the real v0.17 acoustic-scene renderer.
-
-The workbench is intentionally an offline reference renderer. Source truth is
-used only for evaluation fields; localization and policy features consume PCM.
-"""
+"""Validated GUI adapter over the v0.17 acoustic-scene renderer."""
 from __future__ import annotations
 
 import base64
+import binascii
 from functools import lru_cache
 from io import BytesIO
 import importlib.util
 import math
 import os
 from pathlib import Path
+from threading import Lock
 from time import perf_counter
 import wave
 
@@ -26,7 +24,9 @@ from onda_hearing.acoustic_scene import (
     Pose3,
     RendererConfig,
     Schedule,
+    StaticPoseResolver,
 )
+from onda_hearing.acoustic_scene.assets import decode_wav
 from onda_hearing.policy import AcousticEvidence, PolicyHearingConfig, PolicyHearingEncoder
 from onda_hearing.streaming.core import GCCPHATSRP
 
@@ -34,6 +34,8 @@ from onda_hearing.streaming.core import GCCPHATSRP
 SAMPLE_RATE = 16_000
 MAX_EMITTERS = 8
 MAX_DURATION_S = 10.0
+MAX_WAV_BYTES = 330_000
+_brain_lock = Lock()
 
 MIC_PRESETS = {
     "onda_reference_4": np.array(
@@ -140,7 +142,8 @@ def _classify_semantics(pcm: np.ndarray) -> dict:
     if len(pcm) < SAMPLE_RATE:
         return {**base, "status": "insufficient_window", "valid": False, "reason": "BEATs requires at least 1 second of PCM"}
     try:
-        events = _beats_brain().classify(np.ascontiguousarray(pcm[-SAMPLE_RATE * 2:, 0]), SAMPLE_RATE)
+        with _brain_lock:
+            events = _beats_brain().classify(np.ascontiguousarray(pcm[-SAMPLE_RATE * 2:, 0]), SAMPLE_RATE)
         return {
             **base,
             "status": "ok" if events else "no_event",
@@ -255,7 +258,7 @@ def _normalize(payload: object) -> dict:
         if emitter_id in seen:
             raise GuiInputError(f"duplicate emitter id: {emitter_id}")
         seen.add(emitter_id)
-        sound = _text(raw.get("sound", "broadband"), "sound", SOUND_TYPES)
+        sound = _text(raw.get("sound", "broadband"), "sound", (*SOUND_TYPES, "wav"))
         bearing_deg = _number(raw.get("bearing_deg", 38.), "bearing_deg", -180., 180.)
         distance_m = _number(raw.get("distance_m", 2.), "distance_m", .15, 25.)
         gain_db = _number(raw.get("gain_db", -3.), "gain_db", -120., 20.)
@@ -280,6 +283,8 @@ def _normalize(payload: object) -> dict:
                 "loop": loop,
             }
         )
+        if sound == "wav":
+            emitters[-1]["wav_name"] = _text(raw.get("wav_name", "Custom WAV"), "WAV name")
     return {
         "duration_s": duration_s,
         "noise_std": noise_std,
@@ -290,16 +295,19 @@ def _normalize(payload: object) -> dict:
     }
 
 
-def _wav_base64(pcm: np.ndarray) -> str:
+def _monitor_pcm16(pcm: np.ndarray) -> bytes:
     mono = np.mean(pcm, axis=1)
-    peak = max(1., float(np.max(np.abs(mono))))
-    audio = np.asarray(np.clip(mono / peak, -1., 1.) * 32767., dtype="<i2")
+    return np.asarray(np.clip(mono, -1., 1.) * 32767., dtype="<i2").tobytes()
+
+
+def _wav_base64(pcm: np.ndarray) -> str:
+    peak = max(1., float(np.max(np.abs(np.mean(pcm, axis=1)))))
     buffer = BytesIO()
     with wave.open(buffer, "wb") as output:
         output.setnchannels(1)
         output.setsampwidth(2)
         output.setframerate(SAMPLE_RATE)
-        output.writeframes(audio.tobytes())
+        output.writeframes(_monitor_pcm16(pcm / peak))
     return base64.b64encode(buffer.getvalue()).decode("ascii")
 
 
@@ -326,27 +334,48 @@ def _angle_error(estimate: float, truth: float) -> float:
     return abs((estimate - truth + 180.) % 360. - 180.)
 
 
-def simulate_scenario(payload: object) -> dict:
-    """Render, localize and summarize one validated fixed-world scene."""
+def _uploaded_asset(encoded, asset_id: str) -> AudioAsset:
+    if not isinstance(encoded, str) or len(encoded) > (MAX_WAV_BYTES + 2) // 3 * 4:
+        raise GuiInputError("Choose a WAV file up to 330 KB")
+    try:
+        raw = base64.b64decode(encoded, validate=True)
+        if len(raw) > MAX_WAV_BYTES:
+            raise ValueError("file is larger than 330 KB")
+        asset = decode_wav(BytesIO(raw), asset_id)
+        if asset.sample_rate != SAMPLE_RATE or len(asset.samples) > 10 * SAMPLE_RATE:
+            raise ValueError("use 16 kHz audio up to 10 seconds")
+    except (ValueError, EOFError, wave.Error, binascii.Error) as exc:
+        raise GuiInputError(f"Invalid WAV: {exc}") from exc
+    return asset
+
+
+def build_scene(payload: object) -> tuple[dict, AcousticSceneRenderer, np.ndarray]:
+    """Bind each GUI object and its audio asset to a fixed scene pose."""
     scenario = _normalize(payload)
-    started = perf_counter()
     positions = MIC_PRESETS[scenario["mic_preset"]]
     assets: dict[str, AudioAsset] = {}
+    poses = {}
     emitters = []
     for index, item in enumerate(scenario["emitters"]):
-        if item["sound"] not in assets:
-            assets[item["sound"]] = _asset(item["sound"], 700 + index)
+        object_path = f"/scene/objects/{index}"
+        asset_id = item["sound"]
+        if asset_id == "wav":
+            asset_id = f"{object_path}/audio"
+            assets[asset_id] = _uploaded_asset(payload["emitters"][index].get("wav_base64"), asset_id)
+        elif asset_id not in assets:
+            assets[asset_id] = _asset(asset_id, 700 + index)
         bearing = math.radians(item["bearing_deg"])
         xyz = (
             item["distance_m"] * math.cos(bearing),
             item["distance_m"] * math.sin(bearing),
             0.,
         )
+        poses[object_path] = Pose3(xyz, _quaternion_facing_robot(item["bearing_deg"]))
         emitters.append(
             Emitter(
                 item["id"],
-                item["sound"],
-                Binding(world=Pose3(xyz, _quaternion_facing_robot(item["bearing_deg"]))),
+                asset_id,
+                Binding(object_path=object_path),
                 Schedule(item["onset_s"], item["duration_s"], item["loop"]),
                 item["gain_db"],
                 item["directivity"],
@@ -364,7 +393,15 @@ def simulate_scenario(payload: object) -> dict:
         microphones,
         emitters,
         assets,
+        resolver=StaticPoseResolver(poses),
     )
+    return scenario, renderer, positions
+
+
+def simulate_scenario(payload: object) -> dict:
+    """Render, localize and summarize one validated scene."""
+    started = perf_counter()
+    scenario, renderer, positions = build_scene(payload)
     total = int(round(scenario["duration_s"] * SAMPLE_RATE))
     chunks = []
     cursor = 0

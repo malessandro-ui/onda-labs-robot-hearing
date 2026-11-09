@@ -1,8 +1,14 @@
+import base64
+from contextlib import closing
+from io import BytesIO
+import wave
+
 import numpy as np
 import pytest
 
 from onda_hearing.gui import backend
-from onda_hearing.gui.backend import GuiInputError, capabilities, simulate_scenario
+from onda_hearing.gui.backend import GuiInputError, build_scene, capabilities, simulate_scenario
+from onda_hearing.gui.live import CHUNK_SAMPLES, live_frames
 from onda_hearing.semantics import EventScore
 
 
@@ -111,3 +117,38 @@ def test_scene_input_bounds_are_enforced():
         payload = scenario()
         payload["emitters"].append(dict(payload["emitters"][0]))
         simulate_scenario(payload)
+
+
+def test_uploaded_sound_is_bound_to_the_object_and_reaches_the_microphones():
+    source = BytesIO()
+    with wave.open(source, "wb") as wav:
+        wav.setparams((1, 2, 16_000, 0, "NONE", "not compressed"))
+        wav.writeframes(np.full(1600, 8192, dtype="<i2").tobytes())
+    payload = scenario(noise_std=0.)
+    payload["emitters"][0].update(
+        sound="wav", wav_name="fixture.wav", wav_base64=base64.b64encode(source.getvalue()).decode(),
+        loop=False,
+    )
+    normalized, renderer, _ = build_scene(payload)
+    emitter = renderer.emitters[0]
+    assert emitter.binding.object_path is not None
+    assert np.all(renderer.assets[emitter.asset_id].samples == .25)
+    assert "wav_base64" not in normalized["emitters"][0]
+    pcm = renderer.render(0, 4096)
+    assert np.max(pcm) > 0.
+    assert not np.any(pcm[-2048:])
+
+    payload["emitters"][0]["wav_base64"] = "invalid"
+    with pytest.raises(GuiInputError, match="Invalid WAV"):
+        build_scene(payload)
+
+
+def test_live_stream_advances_and_exposes_monitor_pcm_without_inventing_a_bearing():
+    _, renderer, positions = build_scene(scenario(noise_std=0., emitters=[]))
+    with closing(live_frames(renderer, positions)) as stream:
+        first, second = next(stream), next(stream)
+    assert second["time_s"] - first["time_s"] == pytest.approx(CHUNK_SAMPLES / 16_000)
+    assert renderer.next_sample == 2 * CHUNK_SAMPLES
+    assert second["spatial"]["bearing_deg"] is None
+    assert second["semantic"] is None
+    assert base64.b64decode(second["audio"]["pcm16_base64"]) == bytes(2 * CHUNK_SAMPLES)

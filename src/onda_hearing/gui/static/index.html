@@ -19,7 +19,7 @@
     <div class="scene-copy">
       <p>ACOUSTIC SCENE 01</p>
       <h1>Hear beyond the camera.</h1>
-      <span>Place a source, render the microphone signal, and inspect what the robot hears.</span>
+      <span>Add sound-emitting objects and see what the robot hears as the scene runs.</span>
     </div>
 
     <svg id="scene-svg" viewBox="0 0 1200 720" role="img" aria-labelledby="scene-title scene-description">
@@ -55,7 +55,7 @@
       <button class="instrument-summary" id="instrument-toggle" type="button" aria-expanded="false" aria-controls="instrument-details">
         <span class="instrument-kicker"><i class="listening-dot"></i><span id="instrument-state">Ready</span></span>
         <span class="mini-compass" aria-hidden="true"><i id="compass-needle"></i><b>N</b></span>
-        <span class="summary-value"><strong id="bearing-result">—</strong><small id="confidence-result">Run a scene</small></span>
+        <span class="summary-value"><strong id="bearing-result">—</strong><small id="confidence-result">Open to listen</small></span>
         <span class="expand-icon" aria-hidden="true">+</span>
       </button>
 
@@ -68,11 +68,17 @@
 
         <div class="waveform-wrap">
           <canvas id="waveform" width="640" height="120" aria-label="Microphone waveform"></canvas>
-          <audio id="audio-player" controls preload="none"></audio>
+          <audio id="audio-player" aria-label="Rendered scene audio" controls preload="none" hidden></audio>
+          <button id="monitor-button" class="small-button" type="button" aria-pressed="false" hidden>Monitor audio</button>
         </div>
 
-        <details class="settings">
-          <summary>Scene setup <span>Adjust</span></summary>
+        <div class="actions live-actions">
+          <button id="add-emitter" type="button">+ Add object</button>
+          <button class="run-button" id="live-button" type="button">Start live</button>
+        </div>
+
+        <details class="settings" id="scene-settings">
+          <summary>Scene setup <span id="object-count">1 object</span></summary>
           <div class="settings-body">
             <label>Microphone array
               <select id="mic-preset"><option value="onda_reference_4">Onda reference · 4 mic</option><option value="square_4">Square · 4 mic</option><option value="linear_4">Linear · 4 mic</option></select>
@@ -83,13 +89,13 @@
             <label>Processing
               <select id="processing"><option value="raw">Raw acoustic scene</option><option value="waveformer" disabled>Waveformer · adapter required</option></select>
             </label>
-            <label>Duration <output id="duration-value">2.4 s</output>
+            <label>Offline render duration <output id="duration-value">2.4 s</output>
               <input id="duration" type="range" min="0.5" max="10" step="0.1" value="2.4">
             </label>
             <label>Sensor noise <output id="noise-value">0.002</output>
               <input id="noise" type="range" min="0" max="0.02" step="0.001" value="0.002">
             </label>
-            <div class="source-heading"><span>Sound sources</span><button id="add-emitter" type="button">+ Add</button></div>
+            <div class="source-heading">Scene objects</div>
             <div id="emitter-list" class="emitter-list"></div>
           </div>
         </details>
@@ -97,7 +103,7 @@
         <div class="actions">
           <button id="reset-button" type="button">Reset</button>
           <button id="export-button" type="button" disabled>Export</button>
-          <button class="run-button" id="run-button" type="button">Run scene</button>
+          <button id="run-button" type="button">Render clip</button>
         </div>
         <p class="integrity" id="integrity">Direction is audio-derived. Labels describe the whole window and are not associated with a direction.</p>
         <div class="error-box" id="error-box" role="alert" hidden></div>
@@ -107,9 +113,11 @@
 
   <template id="emitter-template">
     <article class="emitter-card">
-      <header><input class="emitter-name" value="speaker" aria-label="Source name" maxlength="40"><button class="remove-emitter" type="button" aria-label="Remove source">×</button></header>
+      <header><input class="emitter-name" value="speaker" aria-label="Object name" maxlength="40"><button class="remove-emitter" type="button" aria-label="Remove object">×</button></header>
       <div class="source-fields">
-        <label>Sound<select class="emitter-sound"><option value="broadband">Broadband</option><option value="speech_like">Speech-like</option><option value="telephone">Telephone</option><option value="alarm">Alarm</option></select></label>
+        <label>Sound<select class="emitter-sound"><option value="broadband">Broadband</option><option value="speech_like">Speech-like</option><option value="telephone">Telephone</option><option value="alarm">Alarm</option><option value="wav" disabled>Custom WAV</option></select></label>
+        <label class="wav-upload">Attach WAV <small>Mono PCM · 16 kHz · up to 10 s / 330 KB</small><input class="emitter-wav" type="file" accept=".wav,audio/wav"></label>
+        <label class="loop-control"><input class="emitter-loop" type="checkbox" checked> Loop sound</label>
         <label>Bearing <output class="emitter-bearing-value">38°</output><input class="emitter-bearing" type="range" min="-180" max="180" step="1" value="38"></label>
         <label>Distance <output class="emitter-distance-value">2.0 m</output><input class="emitter-distance" type="range" min="0.2" max="8" step="0.1" value="2"></label>
       </div>

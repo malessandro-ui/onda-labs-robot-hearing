@@ -26,11 +26,20 @@ class AudioAsset:
 
 def load_wav(path: str | Path, asset_id: str | None = None) -> AudioAsset:
     path = Path(path).expanduser()
-    with wave.open(str(path),'rb') as f:
+    with path.open('rb') as source:
+        return decode_wav(source, asset_id or path.stem)
+
+
+def decode_wav(source, asset_id: str) -> AudioAsset:
+    """Decode an open binary stream using the same rules as a WAV file."""
+    with wave.open(source, 'rb') as f:
         rate=f.getframerate(); channels=f.getnchannels(); width=f.getsampwidth()
         if f.getcomptype() != 'NONE' or channels != 1 or width not in (1,2,3,4):
             raise ValueError('use uncompressed mono PCM WAV (8/16/24/32-bit)')
-        raw=f.readframes(f.getnframes())
+        frames = f.getnframes()
+        raw = f.readframes(frames)
+        if len(raw) != frames * width:
+            raise ValueError('truncated PCM WAV')
     if width == 1:
         a=(np.frombuffer(raw,dtype=np.uint8).astype(np.float64)-128)/128
     elif width == 2:
@@ -41,4 +50,4 @@ def load_wav(path: str | Path, asset_id: str | None = None) -> AudioAsset:
         b=np.frombuffer(raw,dtype=np.uint8).reshape(-1,3).astype(np.int32)
         n=(b[:,0] | b[:,1]<<8 | b[:,2]<<16)
         a=((n ^ (1<<23))-(1<<23)).astype(np.float64)/8388608
-    return AudioAsset(asset_id or path.stem,a,rate)
+    return AudioAsset(asset_id,a,rate)

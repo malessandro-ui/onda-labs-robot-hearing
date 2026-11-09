@@ -33,16 +33,27 @@ The convenience script performs the editable install and starts the same CLI:
 ./tools/run_gui.sh
 ```
 
-## Implemented workflow
+## Add objects and listen live
 
-1. Click the lower-right hearing instrument to open it.
-2. Optionally expand **Scene setup** to choose the microphone geometry,
-   environment, duration, noise and up to eight sound sources.
-3. Run deterministic PCM rendering through `AcousticSceneRenderer`.
-4. Read PCM-derived GCC-PHAT/SRP bearing and confidence on the compact compass.
-5. Listen to the rendered monitor mix, inspect its waveform and see the optional
-   whole-window BEATs classification.
-6. Export a JSON report without embedding the audio payload.
+1. Open the lower-right instrument and choose **Add object**. Name it and use
+   **Bearing** and **Distance** to place it in the scene. You can add up to eight objects.
+2. Pick a built-in sound or attach a mono, uncompressed 16 kHz PCM WAV (up to
+   10 seconds and 330 KB). Leave **Loop sound** enabled for continuous emission.
+3. Choose **Start live**. The compass and waveform update about eight times per
+   second. Choose **Monitor audio** to hear the simulated microphone mix.
+4. Change the scene while listening. The GUI restarts the stream after a short
+   debounce and recomputes the estimate from the edited scene. One-shot sounds
+   play again when the stream restarts.
+
+Every scene object uses an SDK `Binding` and `Emitter` with its own pose and
+audio asset. The reference renderer feeds sequential PCM into
+`StreamingHearing` for GCC-PHAT/SRP localization. If configured, BEATs classifies
+recent audio windows asynchronously. Live mode is wall-clock paced and runs
+against the browser's reference simulation.
+
+**Render clip** runs the offline render with a configurable duration and enables
+**Export** for its JSON diagnostics. The report includes custom WAV names and
+omits audio bytes. Attached files are held in the current browser page.
 
 The GUI uses simulator truth only to draw the evaluation overlay and calculate
 single-source angular error. Localization and policy observations receive PCM.
@@ -69,8 +80,8 @@ validated semantic-spatial association layer.
 
 ## Current limits
 
-- Fixed-world scene authoring is implemented. Object-bound emitters remain
-  available through the Python API and native MuJoCo/Isaac adapters.
+- The GUI owns its scene object poses. Native MuJoCo/Isaac poses and physical
+  microphone capture use the SDK's separate runtime adapters.
 - Room presets are stationary FIR approximations, not geometric ray tracing.
 - The Waveformer option is visible but disabled. v0.17 contains no qualified
   Waveformer runtime adapter, so the GUI fails closed instead of simulating one.
