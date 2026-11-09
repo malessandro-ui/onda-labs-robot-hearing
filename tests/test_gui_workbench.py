@@ -1,7 +1,14 @@
 import numpy as np
 import pytest
 
+from onda_hearing.gui import backend
 from onda_hearing.gui.backend import GuiInputError, capabilities, simulate_scenario
+from onda_hearing.semantics import EventScore
+
+
+@pytest.fixture(autouse=True)
+def disable_optional_beats(monkeypatch):
+    monkeypatch.delenv("ONDA_GUI_ALLOW_TRUSTED_BEATS", raising=False)
 
 
 def scenario(**overrides):
@@ -45,6 +52,8 @@ def test_gui_runs_real_scene_renderer_and_localizer():
     assert result["spatial"]["valid"] is True
     assert result["spatial"]["evaluation_error_deg"] <= 6
     assert result["policy"]["values"][3] == pytest.approx(1.)
+    assert result["semantic"]["status"] == "not_configured"
+    assert result["semantic"]["association_valid"] is False
     assert result["telemetry"]["overrange_samples"] == 0
     assert len(result["audio"]["waveform"]) == 4
     assert result["audio"]["wav_base64"].startswith("UklG")
@@ -74,6 +83,25 @@ def test_multiple_sources_never_claim_truth_association():
 def test_unavailable_processing_backend_fails_closed():
     with pytest.raises(GuiInputError, match="Waveformer"):
         simulate_scenario(scenario(processing="waveformer"))
+
+
+def test_configured_sound_brain_events_remain_unassociated(monkeypatch):
+    monkeypatch.setattr(backend, "_beats_capability", lambda: {
+        "label": "Onda Sound Brain · BEATs", "available": True,
+    })
+
+    class Brain:
+        def classify(self, mono, sample_rate):
+            return (EventScore("Telephone bell ringing", .87),)
+
+    monkeypatch.setattr(backend, "_beats_brain", lambda: Brain())
+    result = simulate_scenario(scenario())
+    assert result["semantic"]["valid"] is True
+    assert result["semantic"]["events"] == [
+        {"label": "Telephone bell ringing", "score": pytest.approx(.87)}
+    ]
+    assert result["semantic"]["window_scope"] == "whole_audio_window"
+    assert result["semantic"]["association_valid"] is False
 
 
 def test_scene_input_bounds_are_enforced():

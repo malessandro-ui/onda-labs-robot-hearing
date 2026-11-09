@@ -6,8 +6,12 @@ used only for evaluation fields; localization and policy features consume PCM.
 from __future__ import annotations
 
 import base64
+from functools import lru_cache
 from io import BytesIO
+import importlib.util
 import math
+import os
+from pathlib import Path
 from time import perf_counter
 import wave
 
@@ -60,6 +64,7 @@ class GuiInputError(ValueError):
 
 
 def capabilities() -> dict:
+    semantic = _beats_capability()
     return {
         "sample_rate_hz": SAMPLE_RATE,
         "max_emitters": MAX_EMITTERS,
@@ -79,8 +84,77 @@ def capabilities() -> dict:
                 "reason": "Waveformer runtime adapter is not part of v0.17 yet",
             },
         ],
+        "semantic_backend": semantic,
         "renderer": "Onda v0.17 deterministic CPU reference",
     }
+
+
+def _beats_capability() -> dict:
+    checkpoint = Path(os.path.expandvars(os.getenv("ONDA_BEATS_CHECKPOINT", ""))).expanduser()
+    labels = Path(os.path.expandvars(os.getenv("ONDA_BEATS_LABELS", ""))).expanduser()
+    module_dir = Path(os.path.expandvars(os.getenv("ONDA_BEATS_MODULE_DIR", ""))).expanduser()
+    trusted = os.getenv("ONDA_GUI_ALLOW_TRUSTED_BEATS") == "1"
+    checks = {
+        "checkpoint": bool(str(checkpoint)) and checkpoint.is_file(),
+        "labels": bool(str(labels)) and labels.is_file(),
+        "module": bool(str(module_dir)) and (module_dir / "BEATs.py").is_file(),
+        "torch": importlib.util.find_spec("torch") is not None,
+        "trusted_opt_in": trusted,
+    }
+    available = all(checks.values())
+    missing = [name for name, ready in checks.items() if not ready]
+    return {
+        "id": "onda_beats",
+        "label": "Onda Sound Brain · BEATs",
+        "available": available,
+        "checks": checks,
+        "reason": "ready" if available else "Missing configuration: " + ", ".join(missing),
+        "window_scope": "whole_audio_window",
+        "association_valid": False,
+    }
+
+
+@lru_cache(maxsize=1)
+def _beats_brain():
+    from onda_hearing.semantics import OndaSoundBrain
+
+    return OndaSoundBrain(
+        checkpoint_path=os.environ["ONDA_BEATS_CHECKPOINT"],
+        labels_path=os.environ["ONDA_BEATS_LABELS"],
+        beats_module_dir=os.environ["ONDA_BEATS_MODULE_DIR"],
+        device=os.getenv("ONDA_BEATS_DEVICE"),
+        allow_unsafe_checkpoint=True,
+    )
+
+
+def _classify_semantics(pcm: np.ndarray) -> dict:
+    capability = _beats_capability()
+    base = {
+        "brain_name": capability["label"],
+        "window_scope": "whole_audio_window",
+        "association_valid": False,
+        "events": [],
+    }
+    if not capability["available"]:
+        return {**base, "status": "not_configured", "valid": False, "reason": capability["reason"]}
+    if len(pcm) < SAMPLE_RATE:
+        return {**base, "status": "insufficient_window", "valid": False, "reason": "BEATs requires at least 1 second of PCM"}
+    try:
+        events = _beats_brain().classify(np.ascontiguousarray(pcm[-SAMPLE_RATE * 2:, 0]), SAMPLE_RATE)
+        return {
+            **base,
+            "status": "ok" if events else "no_event",
+            "valid": bool(events),
+            "reason": "ok" if events else "no event exceeded the configured threshold",
+            "events": [{"label": event.label, "score": event.score} for event in events],
+        }
+    except Exception as exc:
+        return {
+            **base,
+            "status": "brain_error",
+            "valid": False,
+            "reason": f"{type(exc).__name__}: {exc}",
+        }
 
 
 def _number(value, name: str, lower: float, upper: float) -> float:
@@ -319,6 +393,7 @@ def simulate_scenario(payload: object) -> dict:
         else None
     )
     rms = np.sqrt(np.mean(np.square(pcm), axis=0))
+    semantic = _classify_semantics(pcm)
     return {
         "scenario": scenario,
         "renderer": "Onda v0.17 AcousticSceneRenderer",
@@ -340,6 +415,7 @@ def simulate_scenario(payload: object) -> dict:
             "names": ["bearing_sin", "bearing_cos", "evidence_scaled", "valid", "age_s"],
             "values": policy.tolist(),
         },
+        "semantic": semantic,
         "audio": {
             "peak": float(np.max(np.abs(pcm))),
             "rms_per_channel": rms.tolist(),

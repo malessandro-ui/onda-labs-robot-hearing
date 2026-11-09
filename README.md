@@ -16,10 +16,11 @@ Simulation integrations: NVIDIA Isaac Sim 5.1 and MuJoCo
 Acoustic Scene GUI
 ------------------
 
-The v0.17 branch includes a local browser workbench for building fixed-world
-acoustic scenes, rendering real multichannel PCM, inspecting localization and
-policy observations, listening to the result, and exporting a validation
-report.
+The v0.17 branch includes a local robot acoustic intelligence observatory for
+building fixed-world acoustic scenes, rendering real multichannel PCM, seeing
+where sounds originate, inspecting optional Onda Sound Brain / BEATs results,
+reviewing confidence and policy observations, listening to the result, and
+exporting a validation report.
 
     python -m pip install -e ".[dev]"
     onda-hearing-gui

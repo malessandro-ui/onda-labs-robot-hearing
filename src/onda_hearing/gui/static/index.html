@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Onda Hearing Workbench</title>
+  <title>Onda Acoustic Intelligence Observatory</title>
   <link rel="stylesheet" href="/app.css">
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
       <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
-      <div><strong>Onda</strong><small>Hearing Workbench</small></div>
+      <div><strong>Onda</strong><small>Acoustic Intelligence Observatory</small></div>
     </div>
     <div class="run-state"><span class="status-dot"></span><span id="runtime-label">Connecting to SDK…</span></div>
     <div class="toolbar">
@@ -23,7 +23,7 @@
   <main class="workspace">
     <aside class="sidebar">
       <div class="panel-heading">
-        <div><p class="eyebrow">Scene setup</p><h1>Acoustic scenario</h1></div>
+        <div><p class="eyebrow">Acoustic world setup</p><h1>Robot environment</h1></div>
         <span class="badge">v0.17</span>
       </div>
 
@@ -65,8 +65,17 @@
 
     <section class="stage-column">
       <div class="stage-heading">
-        <div><p class="eyebrow">Scene preview</p><h2>Top-down acoustic field</h2></div>
+        <div><p class="eyebrow">Where the robot is listening</p><h2>Robot acoustic world</h2></div>
         <div class="legend"><span><i class="line estimate"></i>PCM estimate</span><span><i class="line truth"></i>Evaluation truth</span></div>
+      </div>
+      <div class="perception-chain" aria-label="Robot hearing pipeline status">
+        <div class="chain-node active"><span>01</span><strong>Microphone PCM</strong><small id="chain-pcm">Ready</small></div>
+        <i aria-hidden="true">→</i>
+        <div class="chain-node"><span>02</span><strong>Spatial hearing</strong><small id="chain-spatial">Waiting</small></div>
+        <i aria-hidden="true">→</i>
+        <div class="chain-node"><span>03</span><strong>Sound meaning</strong><small id="chain-semantic">Checking BEATs</small></div>
+        <i aria-hidden="true">→</i>
+        <div class="chain-node caution"><span>04</span><strong>Association</strong><small id="chain-association">Not claimed</small></div>
       </div>
       <div class="stage" id="stage">
         <svg id="scene-svg" viewBox="0 0 720 430" role="img" aria-labelledby="scene-title scene-description">
@@ -96,13 +105,13 @@
         <div class="scale"><span></span>1 m</div>
       </div>
       <div class="timeline">
-        <div class="timeline-meta"><span>Episode timeline</span><span id="timeline-duration">2.4 seconds</span></div>
+        <div class="timeline-meta"><span>Acoustic event stream</span><span id="timeline-duration">2.4 seconds</span></div>
         <div class="timeline-track" id="timeline-track"><div class="timeline-playhead" id="timeline-playhead"></div></div>
       </div>
 
       <section class="signal-section">
         <div class="signal-heading">
-          <div><p class="eyebrow">Rendered output</p><h2>Multichannel PCM</h2></div>
+          <div><p class="eyebrow">What the robot hears</p><h2>Multichannel microphone stream</h2></div>
           <audio id="audio-player" controls preload="none"></audio>
         </div>
         <canvas id="waveform" width="1100" height="220" aria-label="Rendered microphone waveforms"></canvas>
@@ -112,7 +121,7 @@
 
     <aside class="inspector">
       <div class="panel-heading">
-        <div><p class="eyebrow">Acoustic inference</p><h2>Live result</h2></div>
+        <div><p class="eyebrow">Where the sound comes from</p><h2>Spatial understanding</h2></div>
         <span class="badge muted" id="valid-badge">Not run</span>
       </div>
       <div class="metric hero-metric"><span>Estimated bearing</span><strong id="bearing-result">—</strong></div>
@@ -123,8 +132,17 @@
         <div class="metric"><span>Peak level</span><strong id="peak-result">—</strong></div>
       </div>
 
+      <section class="inspector-section semantic-section">
+        <div class="section-title"><span>What produced the sound</span><span class="badge muted" id="semantic-badge">Checking</span></div>
+        <div class="semantic-brain"><span>Inference backend</span><strong id="semantic-brain">Onda Sound Brain · BEATs</strong></div>
+        <div class="semantic-events" id="semantic-events">
+          <div class="semantic-empty">Run a scene to inspect whole-window sound meaning.</div>
+        </div>
+        <p class="semantic-scope" id="semantic-scope">Semantic labels describe the whole audio window and are not yet associated with a direction.</p>
+      </section>
+
       <section class="inspector-section">
-        <div class="section-title"><span>Policy observation</span><span class="code-label">float32[5]</span></div>
+        <div class="section-title"><span>What the robot understands</span><span class="code-label">policy float32[5]</span></div>
         <div id="policy-values" class="policy-values">
           <div><span>bearing_sin</span><code>0.000</code></div>
           <div><span>bearing_cos</span><code>0.000</code></div>

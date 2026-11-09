@@ -155,6 +155,8 @@
   function clearEstimate() {
     $("#estimate-layer").replaceChildren();
     $("#stage-chip").textContent = "Configuration changed · run again";
+    $("#chain-spatial").textContent = "Waiting";
+    $("#chain-association").textContent = "Not claimed";
     if (state.result) $("#valid-badge").textContent = "Stale";
   }
 
@@ -234,6 +236,43 @@
     $("#audio-player").src = state.audioUrl;
   }
 
+  function updateSemantic(semantic) {
+    const badge = $("#semantic-badge");
+    const events = $("#semantic-events");
+    $("#semantic-brain").textContent = semantic.brain_name;
+    events.replaceChildren();
+    if (semantic.valid && semantic.events.length) {
+      badge.textContent = "Interpreted";
+      badge.className = "badge valid";
+      $("#chain-semantic").textContent = semantic.events[0].label;
+      semantic.events.forEach((event) => {
+        const row = document.createElement("div");
+        row.className = "semantic-event";
+        const label = document.createElement("strong");
+        label.textContent = event.label;
+        const score = document.createElement("output");
+        score.textContent = `${Math.round(event.score * 100)}%`;
+        const bar = document.createElement("div");
+        bar.className = "semantic-bar";
+        const fill = document.createElement("span");
+        fill.style.width = `${Math.max(0, Math.min(100, event.score * 100))}%`;
+        bar.appendChild(fill);
+        row.append(label, score, bar);
+        events.appendChild(row);
+      });
+    } else {
+      const configured = semantic.status !== "not_configured";
+      badge.textContent = configured ? semantic.status.replaceAll("_", " ") : "Not configured";
+      badge.className = `badge ${semantic.status === "brain_error" ? "invalid" : "muted"}`;
+      $("#chain-semantic").textContent = configured ? semantic.status.replaceAll("_", " ") : "BEATs offline";
+      const empty = document.createElement("div");
+      empty.className = "semantic-empty";
+      empty.textContent = semantic.reason;
+      events.appendChild(empty);
+    }
+    $("#semantic-scope").textContent = "Labels describe the whole audio window. Direction-to-label association is not claimed.";
+  }
+
   function updateResult(result) {
     state.result = result;
     const spatial = result.spatial;
@@ -258,6 +297,10 @@
     ];
     $$("#telemetry > div").forEach((row, index) => $("strong", row).textContent = telemetryValues[index]);
     $("#stage-chip").textContent = spatial.valid ? `PCM estimate · ${formatSigned(spatial.bearing_deg, 1)}°` : "No valid acoustic detection";
+    $("#chain-pcm").textContent = `${result.channels} ch · ${(result.samples_per_channel / result.sample_rate_hz).toFixed(1)} s`;
+    $("#chain-spatial").textContent = spatial.valid ? `${formatSigned(spatial.bearing_deg, 1)}° · ${Math.round(spatial.confidence * 100)}%` : "No detection";
+    $("#chain-association").textContent = spatial.association_valid ? "Single-source evaluation" : "Unresolved";
+    updateSemantic(result.semantic);
     drawEstimate(spatial);
     drawWaveform(result.audio.waveform);
     setAudio(result.audio.wav_base64);
@@ -319,6 +362,12 @@
     $("#peak-result").textContent = "—";
     $("#estimate-layer").replaceChildren();
     $("#stage-chip").textContent = "Ready to render";
+    $("#chain-pcm").textContent = "Ready";
+    $("#chain-spatial").textContent = "Waiting";
+    $("#chain-association").textContent = "Not claimed";
+    $("#semantic-badge").className = "badge muted";
+    $("#semantic-badge").textContent = "Checking";
+    $("#semantic-events").replaceChildren(Object.assign(document.createElement("div"), { className: "semantic-empty", textContent: "Run a scene to inspect whole-window sound meaning." }));
     const context = $("#waveform").getContext("2d");
     context.clearRect(0, 0, $("#waveform").width, $("#waveform").height);
   }
@@ -341,6 +390,13 @@
       state.capabilities = await response.json();
       $("#runtime-label").textContent = state.capabilities.renderer;
       $(".status-dot").classList.add("online");
+      const semantic = state.capabilities.semantic_backend;
+      $("#chain-semantic").textContent = semantic.available ? "BEATs ready" : "BEATs offline";
+      $("#semantic-badge").textContent = semantic.available ? "Ready" : "Not configured";
+      $("#semantic-badge").className = `badge ${semantic.available ? "valid" : "muted"}`;
+      if (!semantic.available) {
+        $("#semantic-events .semantic-empty").textContent = semantic.reason;
+      }
       updateAll();
     } catch (error) {
       $("#runtime-label").textContent = "SDK unavailable";
