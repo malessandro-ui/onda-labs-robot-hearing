@@ -1,0 +1,137 @@
+{
+  "suite": "Onda v0.16 continuous PCM wall-clock soak",
+  "result": "PASS",
+  "host_clock": "CLOCK_MONOTONIC via time.monotonic_ns",
+  "duration_requested_s": 1800.0,
+  "actual_wall_duration_s": 1800.005,
+  "audio_duration_s": 1800.0,
+  "stream_config": {
+    "sample_rate": 16000,
+    "channels": 4,
+    "window_samples": 2048,
+    "hop_samples": 512,
+    "buffer_seconds": 4.0
+  },
+  "input": {
+    "source": "bounded periodic synthetic broadband waveform",
+    "direction_world_deg": 38.0,
+    "yaw_amplitude_deg": 50.0,
+    "yaw_period_s": 24.0,
+    "paced_to_actual_wall_clock": true,
+    "duration_is_not_accelerated": true
+  },
+  "overload": {
+    "enabled": true,
+    "injected_delay_ms": 95.0,
+    "injected_inference_calls": 166,
+    "inference_windows_skipped_expected_during_overload": true
+  },
+  "reads": {
+    "total": 108001,
+    "valid": 107992,
+    "invalid": 9,
+    "stale": 0,
+    "unique_valid": 55910,
+    "bearing_errors": 0,
+    "max_bearing_error": 5.680402077100183,
+    "last_seen_sample_end": 28799488
+  },
+  "timing": {
+    "capture_to_publication": {
+      "count": 55910,
+      "p50_ms": 74.3,
+      "p95_ms": 82.4,
+      "p99_ms": 82.8,
+      "mean_ms": 74.61283446201047,
+      "maximum_ms": 208.650492,
+      "over_range_count": 0,
+      "quantile_bin_ms": 0.1
+    },
+    "capture_to_first_valid_read": {
+      "count": 55910,
+      "p50_ms": 82.2,
+      "p95_ms": 93.6,
+      "p99_ms": 96.9,
+      "mean_ms": 82.49513662826004,
+      "maximum_ms": 222.18088,
+      "over_range_count": 0,
+      "quantile_bin_ms": 0.1
+    },
+    "publication_to_read": {
+      "count": 55910,
+      "p50_ms": 8.0,
+      "p95_ms": 14.5,
+      "p99_ms": 14.8,
+      "mean_ms": 7.882302166249378,
+      "maximum_ms": 19.457074,
+      "over_range_count": 0,
+      "quantile_bin_ms": 0.1
+    },
+    "nonblocking_policy_read": {
+      "count": 108001,
+      "p50_ms": 0.1,
+      "p95_ms": 0.1,
+      "p99_ms": 0.2,
+      "mean_ms": 0.04340097999092569,
+      "maximum_ms": 0.724096,
+      "over_range_count": 0,
+      "quantile_bin_ms": 0.1
+    },
+    "pcm_ingestion": {
+      "count": 90000,
+      "p50_ms": 0.1,
+      "p95_ms": 0.1,
+      "p99_ms": 0.2,
+      "mean_ms": 0.04789458011111154,
+      "maximum_ms": 0.417103,
+      "over_range_count": 0,
+      "quantile_bin_ms": 0.1
+    },
+    "analytic_pcm_render": {
+      "count": 90000,
+      "p50_ms": 0.9,
+      "p95_ms": 1.4,
+      "p99_ms": 1.6,
+      "mean_ms": 0.8693080430999971,
+      "maximum_ms": 9.999145,
+      "over_range_count": 0,
+      "quantile_bin_ms": 0.1
+    }
+  },
+  "deadline_misses": {
+    "audio_producer": 0,
+    "policy_reader": 0
+  },
+  "memory": {
+    "rss_start_bytes": 41324544,
+    "rss_warmup_bytes": 44470272,
+    "rss_peak_after_warmup_bytes": 44863488,
+    "rss_growth_after_warmup_bytes": 393216
+  },
+  "telemetry": {
+    "windows_processed": 55913,
+    "inference_windows_skipped": 334,
+    "pose_misses": 0,
+    "ring_overrun_recoveries": 0,
+    "worker_error": null,
+    "worker_alive": true,
+    "buffer_oldest_sample": 28736000,
+    "buffer_next_sample": 28800000,
+    "audio_epoch": 0,
+    "overwritten_audio_samples": 28736000,
+    "audio_discontinuities": 0,
+    "ingested_audio_samples": 28800000,
+    "capture_age_ms": 69.136901,
+    "publish_age_ms": 1.431241
+  },
+  "reader_error": [],
+  "exit_reason": "completed",
+  "limitations": [
+    "Synthetic coherent audio, not hardware microphone capture.",
+    "Reference single-source planar localizer, not full semantic/multi-source stack.",
+    "Python threads are not hard real time; capture callback jitter is visible.",
+    "Latency histogram uses 0.1ms bins; values above 5s counted in overflow."
+  ],
+  "failures": [],
+  "worker_clean_shutdown": true
+}

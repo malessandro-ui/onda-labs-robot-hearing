@@ -1,0 +1,126 @@
+{
+  "suite": "Onda native Isaac Lab streaming rotating-rig soak",
+  "result": "PASS",
+  "limitations": [
+    "Analytic point-source PCM from native rig/source geometry, no physical acoustic propagation",
+    "Kinematic rigid microphone rig, not articulated robot head",
+    "Simulation time differs from wall time; latency clocks are not interchangeable",
+    "Python worker, single-source planar localizer, not production hardware"
+  ],
+  "task": "Isaac-Cartpole-v0",
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "torch": "2.7.0+cu128",
+  "simulation_duration_s": 180.0,
+  "wall_duration_s": 137.926,
+  "simulation_steps": 10800,
+  "envs": 2,
+  "overload_ms": 0.0,
+  "valid_reads": [
+    10792,
+    10792
+  ],
+  "unique_valid_decisions": [
+    5621,
+    5621
+  ],
+  "p75_angular_error_deg": [
+    2.9,
+    2.5
+  ],
+  "errors_over_10_deg": [
+    0,
+    0
+  ],
+  "telemetry": [
+    {
+      "windows_processed": 5622,
+      "inference_windows_skipped": 0,
+      "pose_misses": 0,
+      "ring_overrun_recoveries": 0,
+      "worker_error": null,
+      "worker_alive": true,
+      "buffer_oldest_sample": 2816000,
+      "buffer_next_sample": 2880000,
+      "audio_epoch": 0,
+      "overwritten_audio_samples": 2816000,
+      "audio_discontinuities": 0,
+      "ingested_audio_samples": 2880000,
+      "capture_age_ms": 64.0,
+      "publish_age_ms": 0.212022
+    },
+    {
+      "windows_processed": 5621,
+      "inference_windows_skipped": 0,
+      "pose_misses": 0,
+      "ring_overrun_recoveries": 0,
+      "worker_error": null,
+      "worker_alive": true,
+      "buffer_oldest_sample": 2816000,
+      "buffer_next_sample": 2880000,
+      "audio_epoch": 0,
+      "overwritten_audio_samples": 2816000,
+      "audio_discontinuities": 0,
+      "ingested_audio_samples": 2880000,
+      "capture_age_ms": 96.0,
+      "publish_age_ms": 13.482344
+    }
+  ],
+  "simulator_policy_ms": {
+    "count": 10800,
+    "p50_ms": 8.7,
+    "p95_ms": 10.5,
+    "p99_ms": 11.1,
+    "mean_ms": 8.439430337499934,
+    "maximum_ms": 453.591358,
+    "over_range_count": 0,
+    "quantile_bin_ms": 0.1
+  },
+  "pcm_ingest_ms": {
+    "count": 21600,
+    "p50_ms": 0.1,
+    "p95_ms": 0.2,
+    "p99_ms": 0.6,
+    "mean_ms": 0.08378351129629677,
+    "maximum_ms": 1.112909,
+    "over_range_count": 0,
+    "quantile_bin_ms": 0.1
+  },
+  "policy_read_ms": {
+    "count": 21600,
+    "p50_ms": 0.1,
+    "p95_ms": 0.1,
+    "p99_ms": 0.6,
+    "mean_ms": 0.03956883537037061,
+    "maximum_ms": 1.412712,
+    "over_range_count": 0,
+    "quantile_bin_ms": 0.1
+  },
+  "simulation_capture_age_ms": [
+    {
+      "count": 10792,
+      "p50_ms": 96.1,
+      "p95_ms": 110.7,
+      "p99_ms": 112.1,
+      "mean_ms": 96.33728687916975,
+      "maximum_ms": 112.0,
+      "over_range_count": 0,
+      "quantile_bin_ms": 0.1
+    },
+    {
+      "count": 10792,
+      "p50_ms": 96.7,
+      "p95_ms": 110.7,
+      "p99_ms": 112.1,
+      "mean_ms": 96.34025203854708,
+      "maximum_ms": 118.0,
+      "over_range_count": 0,
+      "quantile_bin_ms": 0.1
+    }
+  ],
+  "deadline_misses_16_67ms": 12,
+  "rss_start_bytes": 3313602560,
+  "rss_warmup_bytes": 3504312320,
+  "rss_peak_after_warmup_bytes": 3504967680,
+  "failures": [],
+  "worker_clean_shutdown": true
+}
