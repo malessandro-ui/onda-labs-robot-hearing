@@ -1,0 +1,72 @@
+{
+  "suite": "Onda PCM-first streaming native Isaac Lab validation",
+  "result": "PASS",
+  "limitations": [
+    "Reference analytic point-source renderer; Isaac Lab has no physical acoustic propagation in this test",
+    "Cartpole root stands in for microphone frame; not a calibrated humanoid head",
+    "Python-thread prototype, not hard real-time or multi-source tracking"
+  ],
+  "task": "Isaac-Cartpole-v0",
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "torch": "2.7.0+cu128",
+  "num_envs": 2,
+  "steps": 180,
+  "valid_read_counts": [
+    172,
+    172
+  ],
+  "p75_angular_error_deg": [
+    1.999999314448445,
+    1.999999314448445
+  ],
+  "telemetry": [
+    {
+      "windows_processed": 90,
+      "inference_windows_skipped": 0,
+      "pose_misses": 0,
+      "ring_overrun_recoveries": 0,
+      "worker_error": null,
+      "worker_alive": true,
+      "buffer_oldest_sample": 0,
+      "buffer_next_sample": 48000,
+      "audio_epoch": 0,
+      "overwritten_audio_samples": 0,
+      "audio_discontinuities": 0,
+      "ingested_audio_samples": 48000,
+      "capture_age_ms": 88.0,
+      "publish_age_ms": 10.090017
+    },
+    {
+      "windows_processed": 90,
+      "inference_windows_skipped": 0,
+      "pose_misses": 0,
+      "ring_overrun_recoveries": 0,
+      "worker_error": null,
+      "worker_alive": true,
+      "buffer_oldest_sample": 0,
+      "buffer_next_sample": 48000,
+      "audio_epoch": 0,
+      "overwritten_audio_samples": 0,
+      "audio_discontinuities": 0,
+      "ingested_audio_samples": 48000,
+      "capture_age_ms": 88.0,
+      "publish_age_ms": 8.854848
+    }
+  ],
+  "timing": {
+    "native_policy_physics_only": {
+      "p50_ms": 8.43639,
+      "p95_ms": 9.889588699999992
+    },
+    "pcm_ingestion": {
+      "p50_ms": 0.054911,
+      "p95_ms": 0.13387695000000002
+    },
+    "nonblocking_policy_read": {
+      "p50_ms": 0.017805500000000002,
+      "p95_ms": 0.0328005
+    }
+  },
+  "caveat": "A step-to-step update is not a continuous hardware audio capture test.",
+  "worker_clean_shutdown": true
+}

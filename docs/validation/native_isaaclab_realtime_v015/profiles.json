@@ -1,0 +1,102 @@
+{
+  "suite": "Onda v0.15 acoustic CPU profile comparison",
+  "note": "CPU/pose staging + renderer + SRP + selector; no Kit. Candidate settings are not production defaults.",
+  "profiles": {
+    "baseline": {
+      "profile": {
+        "period_ms": 100,
+        "window_samples": 4096,
+        "capacity_samples": 8192,
+        "angular_resolution_deg": 2,
+        "block_samples": 320,
+        "hop_samples": 160
+      },
+      "timing": {
+        "count": 100,
+        "p50_ms": 84.74317099999999,
+        "p95_ms": 106.81972855000001
+      },
+      "valid_second_half": [
+        49,
+        49
+      ],
+      "new_decisions": [
+        14,
+        14
+      ],
+      "p75_angular_error_deg": [
+        2.000000661350157,
+        4.0768856024442357e-07
+      ],
+      "accuracy_pass": true
+    },
+    "balanced_candidate": {
+      "profile": {
+        "period_ms": 200,
+        "window_samples": 2048,
+        "capacity_samples": 4096,
+        "angular_resolution_deg": 4,
+        "block_samples": 320,
+        "hop_samples": 160
+      },
+      "timing": {
+        "count": 100,
+        "p50_ms": 85.57744199999999,
+        "p95_ms": 92.20703449999999
+      },
+      "valid_second_half": [
+        49,
+        49
+      ],
+      "new_decisions": [
+        8,
+        8
+      ],
+      "p75_angular_error_deg": [
+        2.000000661350157,
+        2.000000661350157
+      ],
+      "accuracy_pass": true
+    },
+    "lower_rate_candidate": {
+      "profile": {
+        "period_ms": 250,
+        "window_samples": 2048,
+        "capacity_samples": 4096,
+        "angular_resolution_deg": 4,
+        "block_samples": 320,
+        "hop_samples": 160
+      },
+      "timing": {
+        "count": 100,
+        "p50_ms": 85.2401735,
+        "p95_ms": 95.22220035
+      },
+      "valid_second_half": [
+        49,
+        49
+      ],
+      "new_decisions": [
+        6,
+        6
+      ],
+      "p75_angular_error_deg": [
+        2.000000661350157,
+        2.000000661350157
+      ],
+      "accuracy_pass": true
+    }
+  },
+  "candidate_assessment": {
+    "balanced_candidate": {
+      "relative_p50_speedup": 0.9902512743954184,
+      "eligible_for_further_validation": false,
+      "not_yet_validated_in_native_motion": true
+    },
+    "lower_rate_candidate": {
+      "relative_p50_speedup": 0.9941693865745123,
+      "eligible_for_further_validation": false,
+      "not_yet_validated_in_native_motion": true
+    }
+  }
+}
