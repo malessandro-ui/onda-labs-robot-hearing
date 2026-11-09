@@ -1,0 +1,94 @@
+{
+  "suite": "native MuJoCo object-bound unified hearing",
+  "result": "PASS",
+  "limitations": [
+    "Analytic direct-path renderer; no wall occlusion or full room acoustics",
+    "Acoustic event scores apply to full mono window, not uniquely to localized source",
+    "Synthetic ring is not a natural telephone semantic benchmark"
+  ],
+  "duration_sim_s": 8.0,
+  "elapsed_wall_s": 8.001441781001631,
+  "samples_per_channel": 128000,
+  "audio_channels": 4,
+  "source_y_motion_span_m": 1.2999999999561496,
+  "scene_poses": "native MuJoCo mocap body via MuJoCoPoseSnapshot",
+  "emitter_binding": "phone",
+  "microphone_binding": "robot_head",
+  "renderer_telemetry": {
+    "samples_rendered_per_channel": 128000,
+    "max_abs_sample": 0.20960708464186995,
+    "overrange_samples": 0,
+    "clipped_samples": 0
+  },
+  "observation": {
+    "valid_spatial_reads": 199,
+    "unique_spatial_windows": 199,
+    "valid_semantic_reads": 174,
+    "unique_semantic_windows": 13,
+    "angular_error_deg": {
+      "p50": 1.8102631784975927,
+      "p75": 3.104111185359713,
+      "p95": 4.789934756174494,
+      "p99": 6.1791461650550294
+    },
+    "top_labels": [
+      [
+        "Silence",
+        0.3285026252269745
+      ],
+      [
+        "Music",
+        0.2955310344696045
+      ],
+      [
+        "Speech",
+        0.20401594042778015
+      ],
+      [
+        "Busy signal",
+        0.08016929775476456
+      ],
+      [
+        "Dial tone",
+        0.047131191939115524
+      ],
+      [
+        "Inside, small room",
+        0.0427248515188694
+      ],
+      [
+        "Musical instrument",
+        0.028344472870230675
+      ],
+      [
+        "Sine wave",
+        0.026482120156288147
+      ]
+    ],
+    "policy_read_ms": {
+      "p50": 0.03627,
+      "p75": 0.042575,
+      "p95": 0.11774599999999999,
+      "p99": 0.428538
+    }
+  },
+  "streaming_telemetry": {
+    "windows_processed": 247,
+    "inference_windows_skipped": 0,
+    "pose_misses": 0,
+    "ring_overrun_recoveries": 0,
+    "worker_error": null,
+    "worker_alive": true,
+    "buffer_oldest_sample": 64000,
+    "buffer_next_sample": 128000,
+    "audio_epoch": 0,
+    "overwritten_audio_samples": 64000,
+    "audio_discontinuities": 0,
+    "ingested_audio_samples": 128000,
+    "semantic_windows_processed": 13,
+    "semantic_windows_skipped": 0,
+    "semantic_worker_error": null,
+    "semantic_worker_alive": true
+  },
+  "failures": []
+}

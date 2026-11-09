@@ -1,0 +1,95 @@
+{
+  "suite": "native Isaac Lab scene-object unified hearing",
+  "result": "PASS",
+  "limitations": [
+    "Analytic Onda direct-path rendering, not physically simulated airborne sound",
+    "Cartpole with native kinematic scene objects, not a humanoid",
+    "Simulation and wall-time clocks are different",
+    "Semantic classifications apply to whole audio windows, not identified spatial tracks"
+  ],
+  "failures": [],
+  "sim_duration_s": 8.0,
+  "wall_duration_s": 8.143852977009374,
+  "steps": 480,
+  "task": "Isaac-Cartpole-v0",
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "scene_prims": [
+    "/World/envs/env_0/OndaV017Head",
+    "/World/envs/env_0/OndaV017Phone"
+  ],
+  "source_y_motion_span_m": 1.3999934792518616,
+  "rig_yaw_span_deg": 34.37713018425549,
+  "source_pose": "native RigidObject root pose; matching USD prim exists",
+  "microphone_pose": "native RigidObject root pose; matching USD prim exists",
+  "renderer_telemetry": {
+    "samples_rendered_per_channel": 128000,
+    "max_abs_sample": 0.208060370757705,
+    "overrange_samples": 0,
+    "clipped_samples": 0
+  },
+  "observation": {
+    "valid_spatial_reads": 385,
+    "unique_spatial_windows": 200,
+    "valid_semantic_reads": 347,
+    "unique_semantic_windows": 12,
+    "angular_error_deg": {
+      "p50": 1.7573720200815757,
+      "p75": 3.043701046502619,
+      "p95": 4.709126585524544,
+      "p99": 8.157830639431108
+    },
+    "top_labels": [
+      [
+        "Silence",
+        0.3142905533313751
+      ],
+      [
+        "Music",
+        0.2843917906284332
+      ],
+      [
+        "Speech",
+        0.19460122287273407
+      ],
+      [
+        "Busy signal",
+        0.06659264862537384
+      ],
+      [
+        "Inside, small room",
+        0.04180532693862915
+      ],
+      [
+        "Sine wave",
+        0.034071240574121475
+      ]
+    ],
+    "policy_read_ms": {
+      "p50": 0.060151,
+      "p75": 0.07257,
+      "p95": 0.136951,
+      "p99": 0.4566339999999998
+    }
+  },
+  "streaming_telemetry": {
+    "windows_processed": 246,
+    "inference_windows_skipped": 0,
+    "pose_misses": 0,
+    "ring_overrun_recoveries": 0,
+    "worker_error": null,
+    "worker_alive": true,
+    "buffer_oldest_sample": 64000,
+    "buffer_next_sample": 128000,
+    "audio_epoch": 0,
+    "overwritten_audio_samples": 64000,
+    "audio_discontinuities": 0,
+    "ingested_audio_samples": 128000,
+    "capture_age_ms": 96.0,
+    "publish_age_ms": 14.111957,
+    "semantic_windows_processed": 12,
+    "semantic_windows_skipped": 0,
+    "semantic_worker_error": null,
+    "semantic_worker_alive": true
+  },
+  "worker_clean_shutdown": true
+}
