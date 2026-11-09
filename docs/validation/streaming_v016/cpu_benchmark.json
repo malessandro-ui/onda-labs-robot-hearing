@@ -1,0 +1,13 @@
+{
+  "algorithm": "single-source GCC-PHAT SRP reference (not legacy MotionAwareSRPLocalizer)",
+  "tested_windows": 250,
+  "sample_rate_hz": 16000,
+  "window_samples": 2048,
+  "hop_samples": 512,
+  "p50_estimator_ms": 0.6214649999999999,
+  "p95_estimator_ms": 0.6502724999999999,
+  "estimated_hop_real_time_factor_p50": 0.019420781249999998,
+  "angular_p75_error_deg": 2.0,
+  "accuracy_pass": true,
+  "warning": "Estimator-only microbenchmark, not robot 60Hz certification or acoustic model equivalence."
+}

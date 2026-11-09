@@ -1,0 +1,35 @@
+{
+  "suite": "Onda v0.15 bounded async native Isaac Lab smoke",
+  "result": "PASS",
+  "notes": [
+    "Python thread decouples blocking manager.advance but not the GIL or GPU staging.",
+    "Drops/resynchronizations are expected if source throughput exceeds CPU capacity.",
+    "No real-time throughput claim; no robot policy uses hearing automatically."
+  ],
+  "diagnostic_pace_ms": 200.0,
+  "steps": 90,
+  "policy_step_ms_p50": 10.318334,
+  "policy_step_ms_p95": 18.678801249999996,
+  "acoustic_observations_valid_count": 132,
+  "stale_read_steps": 0,
+  "telemetry": {
+    "latest_submitted_step": 92,
+    "latest_completed_step": 92,
+    "lag_steps": 0,
+    "stale": false,
+    "dropped_frames": 0,
+    "resynchronizations": 2,
+    "submitted_frames": 92,
+    "processed_frames": 92,
+    "worker_errors": 0,
+    "worker_ms_last": 114.456851,
+    "pose_staging_ms_last": 0.340242,
+    "published_wall_age_ms": 357.405953,
+    "queue_depth": 0,
+    "epoch": 2
+  },
+  "gpu": "NVIDIA GeForce RTX 4090",
+  "torch": "2.7.0+cu128",
+  "warning": "PASS checks isolation/fail-closed behavior, not 60 Hz acoustic throughput",
+  "worker_clean_shutdown": true
+}
