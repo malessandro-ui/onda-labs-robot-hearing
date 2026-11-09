@@ -1,0 +1,91 @@
+{
+  "suite": "Onda v0.15 native Isaac Lab acoustic acceptance",
+  "started_utc": "2026-11-09T02:47:16.032921+00:00",
+  "result": "PASS",
+  "environment": {
+    "num_envs": 2,
+    "task": "Isaac-Cartpole-v0",
+    "hardware": "NVIDIA GPU (see runner log)",
+    "device": "cuda:0",
+    "step_dt_s": 0.016666666666666666,
+    "pytorch": "2.7.0+cu128",
+    "cuda_runtime": "12.8",
+    "gpu": "NVIDIA GeForce RTX 4090"
+  },
+  "tests": {
+    "native_direction": {
+      "status": "PASS",
+      "steps": 90,
+      "summary": [
+        {
+          "env_id": 0,
+          "planned_world_bearing_deg": 38.0,
+          "valid_samples_second_half": 45,
+          "last_estimate_deg": 35.99999933864985,
+          "last_reference_deg": 38.00000110853593,
+          "median_error_deg": 2.000001769886069,
+          "p75_error_deg": 2.000001769886069,
+          "auto_resets": 0
+        },
+        {
+          "env_id": 1,
+          "planned_world_bearing_deg": -38.0,
+          "valid_samples_second_half": 45,
+          "last_estimate_deg": -40.00000131811317,
+          "last_reference_deg": -38.00000110853593,
+          "median_error_deg": 2.0000002095772516,
+          "p75_error_deg": 2.0000002095772516,
+          "auto_resets": 0
+        }
+      ],
+      "elapsed_wall_s": 12.219177693999882,
+      "policy_step_ms_p50": 118.33295099995667,
+      "policy_step_ms_p95": 197.6686013501194,
+      "note": "Policy step timing includes PhysX + Onda + Python, not isolated acoustic latency."
+    },
+    "native_silence": {
+      "status": "PASS",
+      "steps": 45,
+      "valid_detections": 0,
+      "max_abs_evidence": 0.0
+    },
+    "native_partial_reset": {
+      "status": "PASS",
+      "forced_native_done_mask": [
+        true,
+        false
+      ],
+      "ticks_before": [
+        65,
+        65
+      ],
+      "ticks_after": [
+        0,
+        66
+      ],
+      "observations_after": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          -0.6427876353263855,
+          0.7660444378852844,
+          0.49254709482192993,
+          1.0,
+          2.2000000043931323e-08
+        ]
+      ]
+    }
+  },
+  "warnings": [
+    "CPU reference acoustic renderer; not a GPU-parallel audio benchmark.",
+    "Cartpole robot root approximates the microphone frame; not a calibrated humanoid head.",
+    "Test-harness hard exit bypasses Kit cleanup when requested."
+  ],
+  "completed_utc": "2026-11-09T02:47:44.825524+00:00",
+  "shutdown_mode": "hard"
+}
