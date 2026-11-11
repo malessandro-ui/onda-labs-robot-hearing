@@ -18,3 +18,20 @@ benchmark_results/
 
 # Native validation script backups
 *.bak_before_*
+
+# Onda development outputs
+/runs/
+/.pytest_cache/
+__pycache__/
+*.pyc
+*.bak
+*.bak.*
+*.pre_v*
+*.log
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key

@@ -1,0 +1,14 @@
+[package]
+version = "0.21.1"
+title = "Onda Hearing — Isaac Hearing Studio"
+description = "Interactive USD object explorer, 3–16 microphone rigs, emitter bindings and multichannel acoustic snapshots"
+category = "Simulation"
+authors = ["Onda Labs"]
+readme = "README.md"
+
+[dependencies]
+"omni.usd" = {}
+"omni.ui" = {}
+
+[[python.module]]
+name = "omni.onda.hearing"

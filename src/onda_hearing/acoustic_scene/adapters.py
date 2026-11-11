@@ -153,8 +153,32 @@ class IsaacUSDSceneSnapshot:
         prim=self.stage.GetPrimAtPath(prim_path)
         if not prim.IsValid(): raise KeyError(prim_path)
         xf=UsdGeom.XformCache(Usd.TimeCode.Default()).GetLocalToWorldTransform(prim)
-        t=xf.ExtractTranslation(); q=xf.ExtractRotationQuat()
-        meters=float(UsdGeom.GetStageMetersPerUnit(self.stage))
-        im=q.GetImaginary()
-        return Pose3((float(t[0])*meters,float(t[1])*meters,float(t[2])*meters),
-                     (float(im[0]),float(im[1]),float(im[2]),float(q.GetReal())))
+        # World transforms often include scaling (and sometimes shear), which
+        # makes direct ExtractRotationQuat() invalid. USD documents that method
+        # as intended for rotation-only matrices. Strip scale/shear FIRST.
+        t = xf.ExtractTranslation()
+        meters = float(UsdGeom.GetStageMetersPerUnit(self.stage))
+        if not np.isfinite(meters) or meters <= 0.:
+            raise ValueError(f"invalid USD meters-per-unit: {meters}")
+        determinant = float(xf.GetDeterminant3())
+        if not np.isfinite(determinant) or abs(determinant) < 1e-12:
+            raise ValueError(f"degenerate USD world transform for {prim_path}: determinant={determinant}")
+        rotation_xf = xf.RemoveScaleShear()
+        # RemoveScaleShear() can return its input if decomposition fails. Never
+        # silently invent a pose from a matrix that is still non-orthogonal.
+        basis = np.array([[float(rotation_xf[i][j]) for j in range(3)]
+                          for i in range(3)], dtype=np.float64)
+        if (not np.isfinite(basis).all()
+                or not np.allclose(basis @ basis.T, np.eye(3), atol=1e-5, rtol=1e-5)
+                or not np.isclose(np.linalg.det(basis), 1., atol=1e-5, rtol=1e-5)):
+            raise ValueError(f"USD world rotation could not be isolated for {prim_path}")
+        q = rotation_xf.ExtractRotationQuat()
+        im = q.GetImaginary()
+        xyzw = np.array((float(im[0]), float(im[1]), float(im[2]), float(q.GetReal())),
+                        dtype=np.float64)
+        norm = float(np.linalg.norm(xyzw))
+        if not np.isfinite(norm) or norm < 1e-12:
+            raise ValueError(f"invalid USD world orientation for {prim_path}")
+        xyzw /= norm  # Preserve Pose3's strict unit-quaternion validation.
+        return Pose3((float(t[0])*meters, float(t[1])*meters, float(t[2])*meters),
+                     tuple(float(v) for v in xyzw))

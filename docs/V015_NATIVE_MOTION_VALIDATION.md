@@ -39,7 +39,7 @@ Acceptance assertions:
 
 ## Run (Shadeform)
 
-From your Mac, copy the ZIP to the VM using `scp -i ~/Downloads/private_key.pem ... shadeform@94.101.98.240:/ephemeral/onda-nvidia/`; the public IP may change.
+From your Mac, copy the ZIP to the VM using `scp -i ~/Downloads/YOUR_SSH_KEY.pem ... shadeform@YOUR_SHADEFORM_IP:/ephemeral/onda-nvidia/`; the public IP may change.
 
 On the VM, extract it with Python:
 
